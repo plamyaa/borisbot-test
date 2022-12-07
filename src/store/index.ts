@@ -1,4 +1,8 @@
-import { createStore } from "vuex";
+import { createStore } from 'vuex';
+
+export interface IState {
+  data: number;
+}
 
 export default createStore({
   state: {},
