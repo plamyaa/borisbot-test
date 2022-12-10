@@ -1,19 +1,33 @@
 <template>
   <footer class="footer">
-    <button @click="$store.commit('addFigure')">add</button>
+    <button @click="handleAdd">add</button>
   </footer>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { mapMutations } from 'vuex';
+import { mapGetters, mapMutations } from 'vuex';
 
 export default defineComponent({
   name: 'AppFooter',
-  mutations: {
+  methods: {
     ...mapMutations({
-      addSqaure: 'addFigure',
+      addFigure: 'addFigure',
+      addConnectors: 'addConnectorsGroup',
     }),
+    handleAdd() {
+      this.addFigure();
+      const lastFigure = this.lastFigure;
+      this.addConnectors({
+        width: lastFigure.width,
+        height: lastFigure.height,
+        figurePosition: lastFigure.coords,
+      });
+      console.log(this.$store.state);
+    },
+  },
+  computed: {
+    ...mapGetters({ lastFigure: 'getLastFigure' }),
   },
 });
 </script>

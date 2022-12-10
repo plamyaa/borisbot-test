@@ -13,59 +13,34 @@
     @mousedown="onMouseDown"
     @mousemove="onMouseMove"
   >
-    <button
-      class="square__connector square__connector_up"
-      :id="'up' + id"
-      :style="{
-        backgroundColor: activeConnector === 'up' + id ? '#eaeaea' : '#d3d3d3',
-      }"
-      @click="toggleConnector"
+    <FigureConnector
+      v-for="connector in connectors"
+      :key="connector.id"
+      :id="id"
+      :name="connector.name"
       @mousedown.stop
-    ></button>
-    <div
-      class="square__connector square__connector_right"
-      :id="'right' + id"
-      :style="{
-        backgroundColor:
-          activeConnector === 'right' + id ? '#eaeaea' : '#d3d3d3',
-      }"
-      @click="toggleConnector"
-      @mousedown.stop
-    ></div>
-    <div
-      class="square__connector square__connector_down"
-      :id="'down' + id"
-      :style="{
-        backgroundColor:
-          activeConnector === 'down' + id ? '#eaeaea' : '#d3d3d3',
-      }"
-      @click="toggleConnector"
-      @mousedown.stop
-    ></div>
-    <div
-      class="square__connector square__connector_left"
-      :id="'left' + id"
-      :style="{
-        backgroundColor:
-          activeConnector === 'left' + id ? '#eaeaea' : '#d3d3d3',
-      }"
-      @click="toggleConnector"
-      @mousedown.stop
-    ></div>
+    />
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { mapMutations } from 'vuex';
-
+import { mapGetters, mapMutations } from 'vuex';
+import FigureConnector from './FigureConnector.vue';
 export default defineComponent({
   name: 'FieldFigure',
+  components: { FigureConnector },
   props: {
     id: Number,
   },
   data() {
     return {
+      connectors: [
+        { id: 1, name: 'top' },
+        { id: 2, name: 'right' },
+        { id: 3, name: 'bottom' },
+        { id: 4, name: 'left' },
+      ],
       activeConnector: '',
       dragging: false,
       shiftX: 0,
@@ -74,24 +49,13 @@ export default defineComponent({
   },
   methods: {
     ...mapMutations({
-      setCoords: 'setFigureCoords',
       setZ: 'setFigureZIndex',
-      activateConnector: 'activateConnector',
-      deactivateConnector: 'deactivateConnector',
     }),
-    toggleConnector(event: Event) {
-      const target = event.target as HTMLElement;
-      if (target.id === this.activeConnector) {
-        this.activeConnector = '';
-        this.deactivateConnector();
-      } else {
-        this.activeConnector = target.id;
-        this.activateConnector({
-          x1: this.figure.coords.x + this.figure.width / 2,
-          y1: this.figure.coords.y,
-        });
-      }
-    },
+    ...mapMutations([
+      'moveFigure',
+      'deactivateConnector',
+      'moveConnectorsGroup',
+    ]),
     stopDrag() {
       this.setZ({ id: this.id, zIndex: 0 });
       this.dragging = false;
@@ -110,18 +74,28 @@ export default defineComponent({
       }
     },
     moveAt(pageX: number, pageY: number) {
-      this.setCoords({
+      const newX = pageX - this.shiftX;
+      const newY = pageY - this.shiftY;
+      this.moveFigure({
         id: this.id,
-        x: pageX - this.shiftX,
-        y: pageY - this.shiftY,
+        x: newX,
+        y: newY,
+      });
+      this.moveConnectorsGroup({
+        id: this.id,
+        width: this.figure.width,
+        height: this.figure.height,
+        figurePosition: { x: newX, y: newY },
       });
     },
   },
   mounted() {
     window.addEventListener('mouseup', this.stopDrag);
+    window.addEventListener('mousedown', this.deactivateConnector);
   },
 
   computed: {
+    ...mapGetters(['getConnectors']),
     figure() {
       return this.$store.getters.getFigureParams(this.id);
     },
@@ -134,31 +108,5 @@ export default defineComponent({
   position: absolute;
   background: #0069d1;
   border: 2px solid white;
-}
-.square__connector {
-  cursor: pointer;
-  position: absolute;
-  width: 35px;
-  height: 35px;
-  border-radius: 100%;
-  background-color: #d3d3d3;
-  left: 0;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  margin: auto;
-  border: 2px solid white;
-}
-.square__connector_up {
-  bottom: 100%;
-}
-.square__connector_down {
-  top: 100%;
-}
-.square__connector_right {
-  right: -100%;
-}
-.square__connector_left {
-  left: -100%;
 }
 </style>

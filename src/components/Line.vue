@@ -1,19 +1,13 @@
 <template>
-  <svg
-    class="svg"
-    :style="{
-      left: Math.min(connector?.x1, connector?.x2),
-      top: Math.min(connector?.y1, connector?.y2),
-    }"
-  >
-    <line
-      :x1="connector?.x1"
-      :y1="connector?.y1"
-      :x2="connector?.x2"
-      :y2="connector?.y2"
-      style="stroke: rgb(255, 0, 0); stroke-width: 2"
-    />
-  </svg>
+  <line
+    :id="lineName"
+    :x1="getFirstConnector.x"
+    :y1="getFirstConnector.y"
+    :x2="getSecondConnector.x"
+    :y2="getSecondConnector?.y"
+    style="stroke: rgb(255, 0, 0); stroke-width: 2; z-index: 500"
+  />
+  <button>x</button>
 </template>
 
 <script lang="ts">
@@ -23,17 +17,43 @@ import { mapGetters } from 'vuex';
 export default defineComponent({
   name: 'FieldLine',
   props: {
-    connector: Object,
+    id: Number,
+    lineName: String,
+  },
+  data() {
+    return {
+      connectors: this.lineName?.split('-'),
+    };
   },
   methods: {},
   computed: {
-    ...mapGetters({}),
+    ...mapGetters(['getConnectorCoords']),
+    getConnector(connector: string) {
+      return this.getConnectorCoords(Number(connector[0]), connector.slice(1));
+    },
+    getFirstConnector() {
+      if (this.connectors) {
+        const firstConnnector = this.connectors[0];
+
+        return this.getConnectorCoords(
+          Number(firstConnnector[0]),
+          firstConnnector.slice(1)
+        );
+      }
+      return 0;
+    },
+    getSecondConnector() {
+      if (this.connectors) {
+        const firstConnnector = this.connectors[1];
+        return this.getConnectorCoords(
+          Number(firstConnnector[0]),
+          firstConnnector.slice(1)
+        );
+      }
+      return 0;
+    },
   },
 });
 </script>
 
-<style scoped>
-.svg {
-  position: absolute;
-}
-</style>
+<style scoped></style>

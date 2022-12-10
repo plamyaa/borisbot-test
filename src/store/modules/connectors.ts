@@ -1,102 +1,87 @@
-interface IConnector {
+import { ICoords } from './figures';
+
+interface IConnectorsGroup {
   id: number;
-  x1: number;
-  y1: number;
-  x2: number;
-  y2: number;
+  top: ICoords;
+  right: ICoords;
+  bottom: ICoords;
+  left: ICoords;
 }
 
 export interface IConnectorsState {
-  data: IConnector[];
-  activeConnector: { x1: number; y1: number };
+  data: IConnectorsGroup[];
 }
 
 export default {
   state() {
     return {
       data: [],
-      activeConnectors: {},
     };
   },
   getters: {
     getConnectors(state: IConnectorsState) {
       return state.data;
     },
-    getConnnector: (state: IConnectorsState) => (id: number) => {
+    getConnectorsGroup: (state: IConnectorsState) => (id: number) => {
       return state.data.find((connector) => connector.id === id);
     },
+    getConnectorCoords:
+      (state: IConnectorsState) => (id: number, key: string) => {
+        const connectorsGroup = state.data.find((group) => group.id === id);
+        if (connectorsGroup)
+          return connectorsGroup[key as keyof IConnectorsGroup];
+      },
   },
   mutations: {
-    activateConnector(
+    addConnectorsGroup(
       state: IConnectorsState,
-      payload: { x1: number; y1: number }
-    ) {
-      const { x1, y1 } = payload;
-      console.log(x1, y1);
-      const notActivated = state.activeConnector === undefined;
-      if (notActivated) state.activeConnector = { x1: x1, y1: y1 };
-      else {
-        const lastId = state.data[state.data.length - 1]?.id;
-        console.log(lastId === undefined)
-        state.data.push({
-          id: lastId === undefined ? 1 : lastId + 1,
-          x1: state.activeConnector.x1,
-          y1: state.activeConnector.y1,
-          x2: x1,
-          y2: y1,
-        });
+      payload: {
+        width: number;
+        height: number;
+        figurePosition: ICoords;
       }
-    },
-    deactivateConnector(state: IConnectorsState) {
-      state.activeConnector = Object.assign({});
-    },
-    addConnector(
-      state: IConnectorsState,
-      payload: { x1: number; y1: number; x2: number; y2: number }
     ) {
-      const { x1, y1, x2, y2 } = payload;
-      const lastId = state.data[state.data.length - 1].id;
+      const {
+        width,
+        height,
+        figurePosition: { x, y },
+      } = payload;
+      const newId =
+        state.data[state.data.length - 1]?.id === undefined
+          ? 1
+          : state.data[state.data.length - 1].id + 1;
       state.data.push({
-        id: lastId + 1,
-        x1: x1,
-        y1: y1,
-        x2: x2,
-        y2: y2,
+        id: newId,
+        top: { x: x + width / 2, y: y },
+        right: { x: x + width, y: y + height / 2 },
+        bottom: { x: x + width / 2, y: y + height },
+        left: { x: x, y: y + height / 2 },
       });
     },
-    deleteConnector(state: IConnectorsState, id: number) {
+    deleteConnectorsGroup(state: IConnectorsState, id: number) {
       state.data = state.data.filter((connector) => connector.id !== id);
     },
-    move1coords(
+    moveConnectorsGroup(
       state: IConnectorsState,
       payload: {
         id: number;
-        x1: number;
-        y1: number;
+        width: number;
+        height: number;
+        figurePosition: ICoords;
       }
     ) {
-      const { id, x1, y1 } = payload;
+      const {
+        id,
+        width,
+        height,
+        figurePosition: { x, y },
+      } = payload;
       state.data = state.data.map((connector) => {
         if (connector.id === id) {
-          connector.x1 = x1;
-          connector.y1 = y1;
-        }
-        return connector;
-      });
-    },
-    move2coords(
-      state: IConnectorsState,
-      payload: {
-        id: number;
-        x2: number;
-        y2: number;
-      }
-    ) {
-      const { id, x2, y2 } = payload;
-      state.data = state.data.map((connector) => {
-        if (connector.id === id) {
-          connector.x2 = x2;
-          connector.y2 = y2;
+          connector.top = { x: x + width / 2, y: y };
+          connector.right = { x: x + width, y: y + height / 2 };
+          connector.bottom = { x: x + width / 2, y: y + height };
+          connector.left = { x: x, y: y + height / 2 };
         }
         return connector;
       });

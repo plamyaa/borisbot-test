@@ -1,7 +1,14 @@
 <template>
   <main class="field">
     <Figure v-for="figure in figures" :key="figure.id" :id="figure.id" />
-    <Line v-for="line in connectors" :key="line.id" :connector="line" />
+    <svg class="svg">
+      <Line
+        v-for="line in lines"
+        :key="line.id"
+        :id="line.id"
+        :lineName="line.lineName"
+      />
+    </svg>
   </main>
 </template>
 
@@ -13,15 +20,10 @@ import Line from './Line.vue';
 export default defineComponent({
   components: { Figure, Line },
   name: 'AppField',
-  methods: {
-    log() {
-      console.log(this.connectors);
-    },
-  },
   computed: {
     ...mapGetters({
       figures: 'getFigures',
-      connectors: 'getConnectors',
+      lines: 'getLines',
     }),
   },
 });
@@ -32,5 +34,11 @@ export default defineComponent({
   position: relative;
   width: 100%;
   height: 100%;
+}
+.svg {
+  position: absolute;
+  height: 100vh;
+  width: 100vw;
+  z-index: -10;
 }
 </style>

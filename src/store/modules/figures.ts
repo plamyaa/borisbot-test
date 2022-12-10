@@ -19,24 +19,7 @@ export interface IFiguresState {
 export default {
   state() {
     return {
-      data: [
-        {
-          id: 1,
-          width: 100,
-          height: 100,
-          zIndex: 0,
-          borderRadius: 0,
-          coords: { x: 0, y: 0 },
-        },
-        {
-          id: 2,
-          width: 100,
-          height: 100,
-          zIndex: 0,
-          borderRadius: 0,
-          coords: { x: 0, y: 0 },
-        },
-      ],
+      data: [],
     };
   },
   getters: {
@@ -46,12 +29,18 @@ export default {
     getFigureParams: (state: IFiguresState) => (id: number) => {
       return state.data.find((figure) => figure.id === id);
     },
+    getLastFigure(state: IFiguresState) {
+      return state.data[state.data.length - 1];
+    },
   },
   mutations: {
     addFigure(state: IFiguresState) {
-      const lastId = state.data[state.data.length - 1]?.id;
+      const newId =
+        state.data[state.data.length - 1]?.id === undefined
+          ? 1
+          : state.data[state.data.length - 1].id + 1;
       return state.data.push({
-        id: lastId === undefined ? 1 : lastId + 1,
+        id: newId,
         width: 100,
         height: 100,
         zIndex: 0,
@@ -59,6 +48,11 @@ export default {
         coords: { x: 0, y: 0 },
       });
     },
+    deleteFigure(state: IFiguresState, id: number) {
+      state.data = state.data.filter((figure) => figure.id !== id);
+    },
+
+    // SETTERS
     setFigureWidth(
       state: IFiguresState,
       payload: { id: number; width: number }
@@ -83,18 +77,6 @@ export default {
         return figure;
       });
     },
-    setFigureCoords(
-      state: IFiguresState,
-      payload: { id: number; x: number; y: number }
-    ) {
-      const { id, x, y } = payload;
-      state.data = state.data.map((figure) => {
-        if (figure.id === id) {
-          figure.coords = { x: x, y: y };
-        }
-        return figure;
-      });
-    },
     setFigureZIndex(
       state: IFiguresState,
       payload: { id: number; zIndex: number }
@@ -103,6 +85,18 @@ export default {
       state.data = state.data.map((figure) => {
         if (figure.id === id) {
           figure.zIndex = zIndex;
+        }
+        return figure;
+      });
+    },
+    moveFigure(
+      state: IFiguresState,
+      payload: { id: number; x: number; y: number }
+    ) {
+      const { id, x, y } = payload;
+      state.data = state.data.map((figure) => {
+        if (figure.id === id) {
+          figure.coords = { x: x, y: y };
         }
         return figure;
       });
