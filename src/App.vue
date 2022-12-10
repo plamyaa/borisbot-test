@@ -1,13 +1,15 @@
 <template>
-  <div>asdf</div>
+  <Field />
+  <Footer />
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-
+import Field from './components/Field.vue';
+import Footer from './components/Footer.vue';
 export default defineComponent({
   name: 'App',
-  components: {},
+  components: { Field, Footer },
 });
 </script>
 
@@ -18,8 +20,11 @@ export default defineComponent({
   box-sizing: border-box;
 }
 #app {
-  max-width: 1440px;
-  margin: auto;
+  width: 100vw;
   height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
 }
 </style>

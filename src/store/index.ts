@@ -1,13 +1,12 @@
 import { createStore } from 'vuex';
+import figures, { IFiguresState } from './modules/figures';
+import connectors, { IConnectorsState } from './modules/connectors';
 
 export interface IState {
-  data: number;
+  figures: IFiguresState;
+  connectors: IConnectorsState;
 }
 
-export default createStore({
-  state: {},
-  getters: {},
-  mutations: {},
-  actions: {},
-  modules: {},
+export default createStore<IState>({
+  modules: { figures, connectors },
 });
