@@ -55,5 +55,16 @@ export default {
     deleteLine(state: ILinesState, id: number) {
       state.data = state.data.filter((line) => line.id !== id);
     },
+    deleteLines(state: ILinesState, id: number) {
+      state.data = state.data.filter((line: ILine) => {
+        const connectors = line.lineName.split('-');
+        const firstConnectorId = parseInt(connectors[0]);
+        const secondConnectorId = parseInt(connectors[1]);
+        if (firstConnectorId === id || secondConnectorId === id) {
+          return null;
+        }
+        return line;
+      });
+    },
   },
 };

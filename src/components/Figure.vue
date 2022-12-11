@@ -10,6 +10,11 @@
       @mousedown="drag"
       @mouseup="drop"
     />
+    <FigureDeleteButton
+      :x="figure.coords.x + figure.width"
+      :y="figure.coords.y"
+      :id="id"
+    />
     <FigureConnector
       v-for="connector in getDefaultConnectors"
       :key="connector.id"
@@ -24,9 +29,10 @@
 import { defineComponent } from 'vue';
 import { mapGetters, mapMutations } from 'vuex';
 import FigureConnector from './FigureConnector.vue';
+import FigureDeleteButton from './FigureDeleteButton.vue';
 export default defineComponent({
   name: 'FieldFigure',
-  components: { FigureConnector },
+  components: { FigureConnector, FigureDeleteButton },
   props: {
     id: Number,
   },
