@@ -1,9 +1,13 @@
 <template>
-  <button
+  <circle
     class="connector"
-    :class="{ connector_active: isActive, ['connector_' + name]: true }"
+    :cx="coords.x"
+    :cy="coords.y"
+    :fill="isActive"
+    r="15"
+    :style="style"
     @click="toggleConnector"
-  ></button>
+  />
 </template>
 
 <script lang="ts">
@@ -16,6 +20,11 @@ export default defineComponent({
     id: Number,
     name: String,
   },
+  data() {
+    return {
+      style: 'cursor: pointer; stroke: #fff; stroke-width=2',
+    };
+  },
   methods: {
     ...mapMutations({
       activateConnector: 'activateConnector',
@@ -23,56 +32,25 @@ export default defineComponent({
       linesConnectors: 'getLinesConnectors',
     }),
     toggleConnector() {
-      if (this.name) this.activateConnector(this.id + this.name);
+      const name = this.name;
+      if (name) this.activateConnector(this.id + name);
     },
   },
   computed: {
     ...mapGetters({
       activeConnector: 'getActiveConnector',
+      connectorCoords: 'getConnectorCoords',
     }),
     isActive() {
-      if (this.name) {
-        const name = this.name;
-        // for (let line in this.linesConnectors) {
-        //   if (line[0] === name || line[1] === name) return true;
-        // }
-        return this.activeConnector === this.id + name;
+      const name = this.name;
+      if (name) {
+        return this.activeConnector === this.id + name ? '#ebebeb' : '#cfcfcf';
       }
-      return false;
+      return '#cfcfcf';
+    },
+    coords() {
+      return this.connectorCoords(this.id, this.name);
     },
   },
 });
 </script>
-
-<style scoped>
-.connector {
-  cursor: pointer;
-  position: absolute;
-  width: 35px;
-  height: 35px;
-  border-radius: 100%;
-  background-color: #d3d3d3;
-  left: 0;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  margin: auto;
-  border: 2px solid white;
-  z-index: 100;
-}
-.connector_active {
-  background-color: #eaeaea;
-}
-.connector_top {
-  bottom: 100%;
-}
-.connector_bottom {
-  top: 100%;
-}
-.connector_right {
-  right: -100%;
-}
-.connector_left {
-  left: -100%;
-}
-</style>

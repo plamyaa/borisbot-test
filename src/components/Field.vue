@@ -1,7 +1,7 @@
 <template>
   <main class="field">
-    <Figure v-for="figure in figures" :key="figure.id" :id="figure.id" />
-    <svg class="svg">
+    <svg class="box" width="100vw" height="100vh">
+      <Figure v-for="figure in figures" :key="figure.id" :id="figure.id" />
       <Line
         v-for="line in lines"
         :key="line.id"
@@ -34,11 +34,5 @@ export default defineComponent({
   position: relative;
   width: 100%;
   height: 100%;
-}
-.svg {
-  position: absolute;
-  height: 100vh;
-  width: 100vw;
-  z-index: -10;
 }
 </style>

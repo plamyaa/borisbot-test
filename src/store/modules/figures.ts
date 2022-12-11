@@ -45,7 +45,10 @@ export default {
         height: 100,
         zIndex: 0,
         borderRadius: 0,
-        coords: { x: 0, y: 0 },
+        coords: {
+          x: Math.random() * (600 - 50) + 50,
+          y: Math.random() * (600 - 50) + 50,
+        },
       });
     },
     deleteFigure(state: IFiguresState, id: number) {

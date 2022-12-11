@@ -5,14 +5,31 @@
     :y1="getFirstConnector.y"
     :x2="getSecondConnector.x"
     :y2="getSecondConnector?.y"
-    style="stroke: rgb(255, 0, 0); stroke-width: 2; z-index: 500"
+    :style="style"
   />
-  <button>x</button>
+  <circle
+    class="connector"
+    :cx="getFirstConnector.x"
+    :cy="getFirstConnector.y"
+    fill="red"
+    r="5"
+    :style="style"
+    @click="deleteLine(id)"
+  />
+  <circle
+    class="connector"
+    :cx="getSecondConnector.x"
+    :cy="getSecondConnector.y"
+    fill="red"
+    r="5"
+    :style="style"
+    @click="deleteLine(id)"
+  />
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { mapGetters } from 'vuex';
+import { mapGetters, mapMutations } from 'vuex';
 
 export default defineComponent({
   name: 'FieldLine',
@@ -22,32 +39,38 @@ export default defineComponent({
   },
   data() {
     return {
+      style: 'stroke: #000; stroke-width: 2;',
       connectors: this.lineName?.split('-'),
     };
   },
-  methods: {},
+  methods: {
+    ...mapMutations(['deleteLine']),
+  },
   computed: {
     ...mapGetters(['getConnectorCoords']),
     getConnector(connector: string) {
       return this.getConnectorCoords(Number(connector[0]), connector.slice(1));
     },
     getFirstConnector() {
-      if (this.connectors) {
-        const firstConnnector = this.connectors[0];
-
+      const connectors = this.connectors;
+      if (connectors) {
+        const firstConnnector = connectors[0];
+        const idLen = parseInt(firstConnnector).toString().length;
         return this.getConnectorCoords(
-          Number(firstConnnector[0]),
-          firstConnnector.slice(1)
+          Number(firstConnnector.slice(0, idLen)),
+          firstConnnector.slice(idLen)
         );
       }
       return 0;
     },
     getSecondConnector() {
-      if (this.connectors) {
-        const firstConnnector = this.connectors[1];
+      const connectors = this.connectors;
+      if (connectors) {
+        const firstConnnector = connectors[1];
+        const idLen = parseInt(firstConnnector).toString().length;
         return this.getConnectorCoords(
-          Number(firstConnnector[0]),
-          firstConnnector.slice(1)
+          Number(firstConnnector.slice(0, idLen)),
+          firstConnnector.slice(idLen)
         );
       }
       return 0;

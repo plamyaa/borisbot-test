@@ -32,9 +32,10 @@ export default {
   mutations: {
     activateConnector(state: ILinesState, name: string) {
       const active = state.activeConnector;
+      const idLen = parseInt(name).toString().length - 1;
       if (state.activeConnector === '') {
         state.activeConnector = name;
-      } else if (state.activeConnector[0] === name[0]) {
+      } else if (state.activeConnector[idLen] === name[idLen]) {
         state.activeConnector = name;
       } else if (state.activeConnector !== name) {
         state.activeConnector = '';

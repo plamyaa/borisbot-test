@@ -1,26 +1,23 @@
 <template>
-  <div
-    class="square"
-    ref="square"
-    :style="{
-      left: figure.coords.x + 'px',
-      top: figure.coords.y + 'px',
-      zIndex: figure.zIndex,
-      width: figure.width + 'px',
-      height: figure.height + 'px',
-      borderRadius: figure.borderRadius + '%',
-    }"
-    @mousedown="onMouseDown"
-    @mousemove="onMouseMove"
-  >
+  <svg ref="box" class="box" width="100vw" height="100vh">
+    <rect
+      :width="figure.width"
+      :height="figure.height"
+      :style="cursor"
+      style="fill: #0069d1; stroke: #fff; stroke-width: 2"
+      :x="figure.coords.x"
+      :y="figure.coords.y"
+      @mousedown="drag"
+      @mouseup="drop"
+    />
     <FigureConnector
-      v-for="connector in connectors"
+      v-for="connector in getDefaultConnectors"
       :key="connector.id"
       :id="id"
       :name="connector.name"
       @mousedown.stop
     />
-  </div>
+  </svg>
 </template>
 
 <script lang="ts">
@@ -35,17 +32,18 @@ export default defineComponent({
   },
   data() {
     return {
-      connectors: [
-        { id: 1, name: 'top' },
-        { id: 2, name: 'right' },
-        { id: 3, name: 'bottom' },
-        { id: 4, name: 'left' },
-      ],
-      activeConnector: '',
-      dragging: false,
-      shiftX: 0,
-      shiftY: 0,
+      dragOffsetX: 0,
+      dragOffsetY: 0,
     };
+  },
+  computed: {
+    ...mapGetters(['getDefaultConnectors', 'getConnectors']),
+    figure() {
+      return this.$store.getters.getFigureParams(this.id);
+    },
+    cursor() {
+      return `cursor: ${this.dragOffsetX ? 'grabbing' : 'grab'}`;
+    },
   },
   methods: {
     ...mapMutations({
@@ -56,26 +54,21 @@ export default defineComponent({
       'deactivateConnector',
       'moveConnectorsGroup',
     ]),
-    stopDrag() {
-      this.setZ({ id: this.id, zIndex: 0 });
-      this.dragging = false;
+    drag({ offsetX, offsetY }: { offsetX: number; offsetY: number }) {
+      this.dragOffsetX = offsetX - this.figure.coords.x;
+      this.dragOffsetY = offsetY - this.figure.coords.y;
+      (this.$refs.box as HTMLElement).addEventListener('mousemove', this.move);
     },
-    onMouseDown(event: MouseEvent) {
-      this.dragging = true;
-      this.setZ({ id: this.id, zIndex: 1000 });
-      this.shiftX =
-        event.clientX - (this.$refs.square as any).getBoundingClientRect().left;
-      this.shiftY =
-        event.clientY - (this.$refs.square as any).getBoundingClientRect().top;
+    drop() {
+      this.dragOffsetX = this.dragOffsetY = 0;
+      (this.$refs.box as HTMLElement).removeEventListener(
+        'mousemove',
+        this.move
+      );
     },
-    onMouseMove(event: MouseEvent) {
-      if (this.dragging) {
-        this.moveAt(event.pageX, event.pageY);
-      }
-    },
-    moveAt(pageX: number, pageY: number) {
-      const newX = pageX - this.shiftX;
-      const newY = pageY - this.shiftY;
+    move({ offsetX, offsetY }: { offsetX: number; offsetY: number }) {
+      const newX = offsetX - this.dragOffsetX;
+      const newY = offsetY - this.dragOffsetY;
       this.moveFigure({
         id: this.id,
         x: newX,
@@ -90,23 +83,18 @@ export default defineComponent({
     },
   },
   mounted() {
-    window.addEventListener('mouseup', this.stopDrag);
+    window.addEventListener('mouseup', this.drop);
     window.addEventListener('mousedown', this.deactivateConnector);
   },
-
-  computed: {
-    ...mapGetters(['getConnectors']),
-    figure() {
-      return this.$store.getters.getFigureParams(this.id);
-    },
+  beforeUnmount() {
+    window.removeEventListener('mouseup', this.drop);
+    window.removeEventListener('mousedown', this.deactivateConnector);
   },
 });
 </script>
 
 <style scoped>
-.square {
+.box {
   position: absolute;
-  background: #0069d1;
-  border: 2px solid white;
 }
 </style>

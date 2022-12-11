@@ -9,16 +9,26 @@ interface IConnectorsGroup {
 }
 
 export interface IConnectorsState {
+  defaultConnectors: [{ id: number; name: string }];
   data: IConnectorsGroup[];
 }
 
 export default {
   state() {
     return {
+      defaultConnectors: [
+        { id: 1, name: 'top' },
+        { id: 2, name: 'right' },
+        { id: 3, name: 'bottom' },
+        { id: 4, name: 'left' },
+      ],
       data: [],
     };
   },
   getters: {
+    getDefaultConnectors(state: IConnectorsState) {
+      return state.defaultConnectors;
+    },
     getConnectors(state: IConnectorsState) {
       return state.data;
     },
